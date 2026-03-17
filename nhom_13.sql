@@ -6,6 +6,8 @@
 -- Generation Time: Mar 17, 2026 at 07:26 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
+CREATE DATABASE nhom_13;
+USE nhom_13;
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
