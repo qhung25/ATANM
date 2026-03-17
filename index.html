@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ thống giới thiệu thành viên - Nhóm 13</title>
+    <link rel="stylesheet" href="index.css">
+
+</head>
+<body>
+
+    <!-- Auth Status Bar -->
+    <div id="auth-status-bar">
+        <div class="status-indicator"></div>
+        <span id="active-user-name">Đang tải...</span>
+    </div>
+
+    <!-- VIEW 1: TEAM LIST -->
+    <section id="view-list" class="view-section active">
+        <div class="header">
+            <h1>Thành Viên Nhóm 13</h1>
+            <p>Sử dụng tài khoản được cấp để vào hệ thống</p>
+        </div>
+
+        <div class="team-container">
+            <div class="member-card">
+                <div class="avatar-box">
+                    <svg width="60" height="60" viewBox="0 0 24 24" fill="var(--primary-color)"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                </div>
+                <span class="member-role">Kỹ Thuật</span>
+                <h2 class="member-name">Trương Vang Việt</h2>
+                <button class="btn-open-login" onclick="openLoginModal('Trương Vang Việt')">Đăng nhập</button>
+            </div>
+
+            <div class="member-card">
+                <div class="avatar-box">
+                    <svg width="60" height="60" viewBox="0 0 24 24" fill="var(--primary-color)"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                </div>
+                <span class="member-role">Trưởng Nhóm</span>
+                <h2 class="member-name">Quốc Hùng</h2>
+                <button class="btn-open-login" onclick="openLoginModal('Quốc Hùng')">Đăng nhập</button>
+            </div>
+
+            <div class="member-card">
+                <div class="avatar-box">
+                    <svg width="60" height="60" viewBox="0 0 24 24" fill="var(--primary-color)"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                </div>
+                <span class="member-role">Thiết Kế</span>
+                <h2 class="member-name">Bảo Nhi</h2>
+                <button class="btn-open-login" onclick="openLoginModal('Bảo Nhi')">Đăng nhập</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- VIEW 2: PROFILE VIEW -->
+    <section id="view-profile" class="view-section">
+        <div class="profile-card">
+            <div class="profile-header"></div>
+            <div class="profile-body">
+                <div class="profile-avatar">
+                    <svg width="80" height="80" viewBox="0 0 24 24" fill="var(--primary-color)"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                </div>
+                <div class="profile-info">
+                    <h2 id="p-name">Tên Thành Viên</h2>
+                    <span class="role" id="p-role">Vai trò</span>
+                </div>
+                
+                <div class="profile-stats">
+                    <div class="stat-item">
+                        <b id="p-mssv">0</b>
+                        <span>MSSV</span>
+                    </div>
+                    <div class="stat-item">
+                        <b id="p-year">Năm 3</b>
+                        <span>Năm học</span>
+                    </div>
+                </div>
+
+                <div style="text-align: left; margin: 0 3rem;">
+                    <h3 style="font-size: 1rem; color: var(--primary-color); margin-bottom: 0.5rem; text-transform: uppercase;">Tiểu sử cá nhân</h3>
+                    <p class="profile-bio" id="p-bio">Đang tải tiểu sử...</p>
+                </div>
+
+                <div class="profile-actions" style="margin-top: 2rem;">
+                    <button class="btn-back" onclick="handleLogout()">Đăng xuất & Quay lại</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modal Đăng nhập -->
+    <div id="login-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeLoginModal()">&times;</button>
+            <div style="text-align: center; margin-bottom: 20px;">
+                <h2 id="modal-title-name">Đăng nhập</h2>
+                <p style="color: var(--text-sub); font-size: 0.85rem;">Vui lòng nhập đúng thông tin tài khoản nhóm</p>
+            </div>
+            <div class="form-group">
+                <label>Tài khoản</label>
+                <input type="text" id="username">
+            </div>
+            <div class="form-group">
+                <label>Mật khẩu</label>
+                <input type="password" id="password" placeholder="••••••••">
+            </div>
+            <button id="btn-confirm" class="btn-submit-login" onclick="processLogin()">Vào hồ sơ</button>
+            <p id="modal-error" style="color: var(--error-color); font-size: 0.8rem; margin-top: 10px; text-align: center; font-weight: 600;"></p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // Cấu hình tài khoản duy nhất
+        const VALID_USER = "student13";
+        const VALID_PASS = "kcntt";
+
+        const memberData = {
+            "Trương Vang Việt": {
+                role: "Chuyên viên Kỹ Thuật",
+                mssv: "4651050319",
+                year: "Năm 3",
+                bio: "Trương Vang Việt sở thích chơi game và thể thao. Đam mê cầu lông và chạy bộ. Một tuần thường dành thời gian chạy bộ để rèn luyện sức khỏe."
+            },
+            "Quốc Hùng": {
+                role: "Trưởng Nhóm / Quản lý Dự án",
+                mssv: "4651050104",
+                year: "Năm 3",
+                bio: "Với vai trò là người dẫn dắt, Quốc Hùng đảm bảo mọi thành viên luôn đi đúng hướng. Anh có khả năng quản lý thời gian tuyệt vời và kỹ năng giải quyết vấn đề phức tạp một cách nhanh chóng."
+            },
+            "Bảo Nhi": {
+                role: "Nhà Thiết Kế UI/UX",
+                mssv: "4651050187",
+                year: "Năm 3",
+                bio: "Bảo Nhi sở hữu con mắt thẩm mỹ tinh tế. Cô là người tạo ra những giao diện người dùng tuyệt đẹp và trực quan, giúp trải nghiệm của khách hàng luôn ở mức cao nhất."
+            }
+        };
+
+        let selectedMember = "";
+
+        const switchView = (viewName) => {
+            document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+            document.getElementById(`view-${viewName}`).classList.add('active');
+        };
+
+        window.openLoginModal = (name) => {
+            selectedMember = name;
+            document.getElementById('modal-title-name').innerText = `Đăng nhập cho ${name}`;
+            document.getElementById('login-modal').classList.add('active');
+            document.getElementById('modal-error').innerText = "";
+            document.getElementById('username').value = "";
+            document.getElementById('password').value = "";
+        };
+
+        window.closeLoginModal = () => {
+            document.getElementById('login-modal').classList.remove('active');
+        };
+
+        window.processLogin = async () => {
+            const userInp = document.getElementById('username').value;
+            const passInp = document.getElementById('password').value;
+            const errorMsg = document.getElementById('modal-error');
+            const btn = document.getElementById('btn-confirm');
+
+            if (userInp !== VALID_USER || passInp !== VALID_PASS) {
+                errorMsg.innerText = "Sai tài khoản hoặc mật khẩu!";
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = "Đang vào...";
+
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                closeLoginModal();
+            } catch (e) {
+                errorMsg.innerText = "Lỗi hệ thống.";
+                btn.disabled = false;
+                btn.innerText = "Vào hồ sơ";
+            }
+        };
+
+        window.handleLogout = () => signOut(auth);
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                const data = memberData[selectedMember] || Object.values(memberData)[0];
+                
+                // Hiển thị dữ liệu lên web
+                document.getElementById('p-name').innerText = selectedMember || "Thành viên";
+                document.getElementById('p-role').innerText = data.role;
+                document.getElementById('p-mssv').innerText = data.mssv; 
+                document.getElementById('p-year').innerText = data.year; 
+                document.getElementById('p-bio').innerText = data.bio;   
+
+                document.getElementById('auth-status-bar').style.display = 'flex';
+                document.getElementById('active-user-name').innerText = selectedMember;
+                
+                switchView('profile');
+            } else {
+                document.getElementById('auth-status-bar').style.display = 'none';
+                switchView('list');
+                document.getElementById('btn-confirm').disabled = false;
+                document.getElementById('btn-confirm').innerText = "Vào hồ sơ";
+            }
+        });
+    </script>
+</body>
+</html>
