@@ -7,7 +7,7 @@ session_start();
 $host = '127.0.0.1'; // Chạy trên cùng server Proxmox
 $dbname = 'nhom13_db';
 $db_user = 'root';   // Đổi thành user MySQL trên server của bạn
-$db_pass = '';       // Đổi thành mật khẩu MySQL trên server của bạn
+$db_pass = 'web@123';       // Đổi thành mật khẩu MySQL trên server của bạn
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $db_user, $db_pass);
