@@ -1,8 +1,8 @@
 <?php
 $host = "localhost";
-$user = "root"; // Mặc định của XAMPP là root
-$pass = "";     // Mặc định của XAMPP là rỗng
-$dbname = "user1";
+$user = "adminhung"; 
+$pass = "123456";     
+$dbname = "users1";
 
 $conn = mysqli_connect($host, $user, $pass, $dbname);
 
