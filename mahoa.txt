@@ -1,0 +1,125 @@
+    // ==========================================
+    // 2. PLAYFAIR - CODE THỦ CÔNG (MẢNG 2 CHIỀU 5x5)
+    // ==========================================
+    $kqPlayfair = "";
+    if (isset($_POST['btnPlayfair'])) {
+        $rawText = strtoupper($_POST['txtPlayfair']);
+        $rawKey = strtoupper($_POST['keyPlayfair']);
+        $isMahoa = ($_POST['btnPlayfair'] == 'mahoa');
+
+        // BƯỚC 1: Lọc chuỗi thủ công (Bỏ khoảng trắng, đổi J thành I)
+        $text = ""; $key = "";
+        for ($i = 0; $i < strlen($rawText); $i++) {
+            $c = $rawText[$i];
+            if ($c == 'J') $c = 'I';
+            if ($c >= 'A' && $c <= 'Z') $text .= $c;
+        }
+        for ($i = 0; $i < strlen($rawKey); $i++) {
+            $c = $rawKey[$i];
+            if ($c == 'J') $c = 'I';
+            if ($c >= 'A' && $c <= 'Z') $key .= $c;
+        }
+
+        // BƯỚC 2: Xây dựng chuỗi ma trận không trùng lặp (Thủ công)
+        $bangChuCai = "ABCDEFGHIKLMNOPQRSTUVWXYZ"; // Không có J
+        $chuoiMaTran = "";
+        $chuoiKetHop = $key . $bangChuCai;
+       
+        for ($i = 0; $i < strlen($chuoiKetHop); $i++) {
+            $kyTuCurent = $chuoiKetHop[$i];
+            $daTonTai = false;
+            // Kiểm tra xem ký tự đã có trong chuoiMaTran chưa
+            for ($j = 0; $j < strlen($chuoiMaTran); $j++) {
+                if ($chuoiMaTran[$j] == $kyTuCurent) {
+                    $daTonTai = true;
+                    break;
+                }
+            }
+            if ($daTonTai == false) {
+                $chuoiMaTran .= $kyTuCurent;
+            }
+        }
+
+        // BƯỚC 3: Đổ vào mảng 2 chiều 5x5
+        $maTran2D = [];
+        $index = 0;
+        for ($hang = 0; $hang < 5; $hang++) {
+            for ($cot = 0; $cot < 5; $cot++) {
+                $maTran2D[$hang][$cot] = $chuoiMaTran[$index];
+                $index++;
+            }
+        }
+
+        // BƯỚC 4: Tách cặp ký tự thủ công
+        $capKyTu = [];
+        for ($i = 0; $i < strlen($text); $i++) {
+            $a = $text[$i];
+            $b = "";
+            if ($i + 1 < strlen($text)) {
+                $b = $text[$i + 1];
+            } else {
+                $b = 'X'; // Thiếu ký tự cuối thì chèn X
+            }
+
+            if ($a == $b) {
+                $capKyTu[] = $a . 'X';
+            } else {
+                $capKyTu[] = $a . $b;
+                $i++; // Nhảy bước vì đã lấy 2 ký tự
+            }
+        }
+
+        // BƯỚC 5: Hàm tìm tọa độ thủ công
+        function timToaDo($char, $maTran) {
+            for ($h = 0; $h < 5; $h++) {
+                for ($c = 0; $c < 5; $c++) {
+                    if ($maTran[$h][$c] == $char) return [$h, $c];
+                }
+            }
+            return [0, 0];
+        }
+
+        // BƯỚC 6: Xử lý mã hóa/giải mã
+        $offset = $isMahoa ? 1 : 4;
+        foreach ($capKyTu as $cap) {
+            $toaDo1 = timToaDo($cap[0], $maTran2D);
+            $toaDo2 = timToaDo($cap[1], $maTran2D);
+
+            $h1 = $toaDo1[0]; $c1 = $toaDo1[1];
+            $h2 = $toaDo2[0]; $c2 = $toaDo2[1];
+
+            if ($h1 == $h2) { // Cùng hàng
+                $kqPlayfair .= $maTran2D[$h1][($c1 + $offset) % 5];
+                $kqPlayfair .= $maTran2D[$h2][($c2 + $offset) % 5];
+            } else if ($c1 == $c2) { // Cùng cột
+                $kqPlayfair .= $maTran2D[($h1 + $offset) % 5][$c1];
+                $kqPlayfair .= $maTran2D[($h2 + $offset) % 5][$c2];
+            } else { // Hình chữ nhật
+                $kqPlayfair .= $maTran2D[$h1][$c2];
+                $kqPlayfair .= $maTran2D[$h2][$c1];
+            }
+        }
+    }
+    ?>
+
+    <form method="POST" action="">
+        <fieldset>
+            <legend>CÔNG CỤ CAESAR</legend>
+            Văn bản: <input type="text" name="txtCaesar" value="<?= $_POST['txtCaesar'] ?? '' ?>"><br>
+            Bước nhảy: <input type="number" name="shiftCaesar" value="<?= $_POST['shiftCaesar'] ?? '3' ?>">
+            <br><br>
+            <button type="submit" name="btnCaesar" value="mahoa">Mã hóa</button>
+            <button type="submit" name="btnCaesar" value="giaima">Giải mã</button>
+            <p>Kết quả: <span class="result"><?= $kqCaesar ?></span></p>
+        </fieldset>
+
+        <fieldset>
+            <legend>CÔNG CỤ PLAYFAIR</legend>
+            Văn bản: <input type="text" name="txtPlayfair" value="<?= $_POST['txtPlayfair'] ?? '' ?>"><br>
+            Khóa (Key): <input type="text" name="keyPlayfair" value="<?= $_POST['keyPlayfair'] ?? '' ?>">
+            <br><br>
+            <button type="submit" name="btnPlayfair" value="mahoa">Mã hóa</button>
+            <button type="submit" name="btnPlayfair" value="giaima">Giải mã</button>
+            <p>Kết quả: <span class="result"><?= $kqPlayfair ?></span></p>
+        </fieldset>
+    </form>
