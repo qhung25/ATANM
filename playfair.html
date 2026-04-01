@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Playfair Cipher - Bảo mật thông tin</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+        h2 { color: #4a90e2; margin-bottom: 20px; }
+        .input-group { text-align: left; margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+        input {
+            width: 100%; padding: 12px; border: 1px solid #ddd;
+            border-radius: 6px; font-size: 16px; outline: none;
+        }
+        input:focus { border-color: #4a90e2; }
+        .button-group { display: flex; gap: 10px; margin-bottom: 20px; }
+        button {
+            flex: 1; padding: 12px; border: none; border-radius: 6px;
+            font-weight: bold; cursor: pointer; color: white;
+            transition: opacity 0.3s, transform 0.1s;
+        }
+        .btn-encrypt { background-color: #4a90e2; }
+        .btn-decrypt { background-color: #2ed573; }
+        button:active { transform: scale(0.98); }
+        #result {
+            background-color: #f8f9fa; padding: 15px; border-radius: 6px;
+            border-left: 4px solid #4a90e2; margin-bottom: 20px;
+            text-align: left; word-break: break-all; color: #333;
+        }
+        table { margin: 0 auto 20px auto; border-collapse: collapse; }
+        td {
+            border: 2px solid #eee; width: 40px; height: 40px;
+            text-align: center; font-weight: bold; color: #4a90e2;
+        }
+        .nav-links {
+            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;
+            margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;
+        }
+        .nav-links a {
+            text-decoration: none; font-size: 13px; color: #666;
+            padding: 8px; background: #f1f1f1; border-radius: 4px;
+        }
+        .back-link { display: block; margin-top: 15px; color: #ff4757; text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Playfair Cipher</h2>
+    <div class="input-group">
+        <label>Plaintext:</label>
+        <input type="text" id="text" placeholder="Nhập bản rõ...">
+    </div>
+    <div class="input-group">
+        <label>Key:</label>
+        <input type="text" id="key" placeholder="Nhập khóa (VD: MONARCHY)">
+    </div>
+    <div class="button-group">
+        <button class="btn-encrypt" onclick="encrypt()">Mã hóa</button>
+        <button class="btn-decrypt" onclick="decrypt()">Giải mã</button>
+    </div>
+    <div id="result">Kết quả: </div>
+    <div id="matrix"></div>
+    <div class="nav-links">
+        <a href="railfence.html">Rail Fence</a>
+        <a href="caesar.html">Caesar</a>
+        <a href="rsa.html">RSA</a>
+    </div>
+    <a href="profile.php" class="back-link">← Quay lại trang cá nhân</a>
+</div>
+
+<script>
+let lastCipher = "";
+function generateMatrix(key) {
+    key = key.toUpperCase().replace(/J/g, "I");
+    let seen = {}; let letters = [];
+    key += "ABCDEFGHIKLMNOPQRSTUVWXYZ";
+    for (let char of key) {
+        if (char >= 'A' && char <= 'Z' && !seen[char]) {
+            seen[char] = true; letters.push(char);
+        }
+    }
+    let matrix = [];
+    for (let i = 0; i < 5; i++) matrix.push(letters.slice(i * 5, i * 5 + 5));
+    displayMatrix(matrix);
+    return matrix;
+}
+function displayMatrix(matrix) {
+    let html = "<table>";
+    for (let i = 0; i < 5; i++) {
+        html += "<tr>";
+        for (let j = 0; j < 5; j++) html += "<td>" + matrix[i][j] + "</td>";
+        html += "</tr>";
+    }
+    document.getElementById("matrix").innerHTML = html + "</table>";
+}
+function findPos(m, char) {
+    for (let i = 0; i < 5; i++)
+        for (let j = 0; j < 5; j++) if (m[i][j] === char) return [i, j];
+}
+function prepareText(text) {
+    text = text.toUpperCase().replace(/J/g, "I").replace(/[^A-Z]/g, "");
+    let res = "";
+    for (let i = 0; i < text.length; i++) {
+        let a = text[i], b = text[i+1];
+        if (a === b) { res += a + "X"; }
+        else if (b) { res += a + b; i++; }
+        else { res += a + "X"; }
+    }
+    return res;
+}
+function encryptPair(a, b, m) {
+    let [r1, c1] = findPos(m, a), [r2, c2] = findPos(m, b);
+    if (r1 === r2) return m[r1][(c1+1)%5] + m[r2][(c2+1)%5];
+    if (c1 === c2) return m[(r1+1)%5][c1] + m[(r2+1)%5][c2];
+    return m[r1][c2] + m[r2][c1];
+}
+function decryptPair(a, b, m) {
+    let [r1, c1] = findPos(m, a), [r2, c2] = findPos(m, b);
+    if (r1 === r2) return m[r1][(c1+4)%5] + m[r2][(c2+4)%5];
+    if (c1 === c2) return m[(r1+4)%5][c1] + m[(r2+4)%5][c2];
+    return m[r1][c2] + m[r2][c1];
+}
+function encrypt() {
+    let t = document.getElementById("text").value, k = document.getElementById("key").value;
+    let m = generateMatrix(k), p = prepareText(t), res = "";
+    for (let i = 0; i < p.length; i += 2) res += encryptPair(p[i], p[i+1], m);
+    lastCipher = res;
+    document.getElementById("result").innerHTML = "<strong>Encrypted:</strong> " + res;
+}
+function decrypt() {
+    let k = document.getElementById("key").value;
+    if (!lastCipher) { alert("Chưa có dữ liệu!"); return; }
+    let m = generateMatrix(k), res = "";
+    for (let i = 0; i < lastCipher.length; i += 2) res += decryptPair(lastCipher[i], lastCipher[i+1], m);
+    document.getElementById("result").innerHTML = "<strong>Decrypted:</strong> " + res;
+}
+</script>
+</body>
+</html>

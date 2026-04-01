@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>RSA Cipher - Bảo mật thông tin</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        h2 {
+            color: #4a90e2;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .input-group {
+            text-align: left;
+            margin-bottom: 12px;
+        }
+
+        .row-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            border-color: #4a90e2;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            color: white;
+            transition: opacity 0.3s, transform 0.1s;
+        }
+
+        .btn-encrypt { background-color: #4a90e2; }
+        .btn-decrypt { background-color: #2ed573; }
+
+        button:hover { opacity: 0.9; }
+        button:active { transform: scale(0.98); }
+
+        #result {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #4a90e2;
+            margin-bottom: 20px;
+            text-align: left;
+            word-break: break-all;
+            color: #333;
+            white-space: pre-line; /* Để hiển thị xuống dòng trong kết quả */
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+        }
+
+        .nav-links {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            margin-top: 15px;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            font-size: 12px;
+            color: #666;
+            padding: 8px;
+            background: #f1f1f1;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+
+        .nav-links a:hover {
+            background: #e2e2e2;
+            color: #333;
+        }
+
+        .back-link {
+            display: block;
+            margin-top: 15px;
+            color: #ff4757;
+            text-decoration: none;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>RSA Cipher</h2>
+
+    <div class="row-inputs">
+        <div class="input-group">
+            <label>p (Prime):</label>
+            <input type="text" id="p" placeholder="VD: 61">
+        </div>
+        <div class="input-group">
+            <label>q (Prime):</label>
+            <input type="text" id="q" placeholder="VD: 53">
+        </div>
+        <div class="input-group">
+            <label>e (Exp):</label>
+            <input type="text" id="e" placeholder="17">
+        </div>
+    </div>
+
+    <div class="input-group" style="margin-top: 10px;">
+        <label>Plaintext:</label>
+        <input type="text" id="text" placeholder="Nhập văn bản cần mã hóa...">
+    </div>
+
+    <div class="button-group">
+        <button class="btn-encrypt" onclick="encrypt()">Mã hóa</button>
+        <button class="btn-decrypt" onclick="decrypt()">Giải mã</button>
+    </div>
+
+    <div id="result">Kết quả sẽ hiển thị tại đây...</div>
+
+    <div class="nav-links">
+        <a href="railfence.html">Rail Fence</a>
+        <a href="playfair.html">Playfair</a>
+        <a href="caesar.html">Caesar</a>
+    </div>
+    
+    <a href="profile.php" class="back-link">← Quay lại trang cá nhân</a>
+</div>
+
+<script>
+    let lastCipher = [];
+    let lastN = 0;
+    let lastD = 0;
+
+    function gcd(a, b) {
+        while (b != 0) {
+            let t = b;
+            b = a % b;
+            a = t;
+        }
+        return a;
+    }
+
+    function modInverse(e, phi) {
+        for (let d = 2; d < phi; d++) {
+            if ((e * d) % phi === 1) return d;
+        }
+        return null;
+    }
+
+    function textToAscii(text) {
+        return text.split('').map(c => c.charCodeAt(0));
+    }
+
+    function encrypt() {
+        let p = parseInt(document.getElementById("p").value);
+        let q = parseInt(document.getElementById("q").value);
+        let e = parseInt(document.getElementById("e").value);
+        let text = document.getElementById("text").value;
+
+        if (isNaN(p) || isNaN(q) || isNaN(e) || text === "") {
+            document.getElementById("result").innerText = "Vui lòng nhập đầy đủ thông số!";
+            return;
+        }
+
+        let n = p * q;
+        let phi = (p - 1) * (q - 1);
+
+        if (gcd(e, phi) !== 1) {
+            document.getElementById("result").innerText = "Lỗi: e không nguyên tố cùng nhau với phi(n)!";
+            return;
+        }
+
+        let d = modInverse(e, phi);
+        let ascii = textToAscii(text);
+        let cipher = ascii.map(m => Number(BigInt(m) ** BigInt(e) % BigInt(n)));
+
+        lastCipher = cipher;
+        lastN = n;
+        lastD = d;
+
+        document.getElementById("result").innerHTML = 
+            `<strong>n</strong> = ${n} | <strong>phi</strong> = ${phi}\n` +
+            `<strong>Cipher:</strong> ${cipher.join(", ")}`;
+    }
+
+    function decrypt() {
+        if (lastCipher.length === 0) {
+            document.getElementById("result").innerText = "Chưa có dữ liệu để giải mã!";
+            return;
+        }
+
+        let decrypted = lastCipher.map(c =>
+            Number(BigInt(c) ** BigInt(lastD) % BigInt(lastN))
+        );
+
+        let text = decrypted.map(x => String.fromCharCode(x)).join('');
+
+        document.getElementById("result").innerHTML = 
+            `<strong>Giải mã ASCII:</strong> ${decrypted.join(", ")}\n` +
+            `<strong>Kết quả Text:</strong> ${text}`;
+    }
+</script>
+
+</body>
+</html>

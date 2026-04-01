@@ -80,9 +80,16 @@ body {
     width: 140px; /* Giúp các mục (Họ tên, Chuyên ngành...) căn lề thẳng hàng nhau */
 }
 
+.button-group {
+    display: flex;       /* Kích hoạt flexbox */
+    gap: 15px;          /* Tạo khoảng cách giữa 2 nút */
+    margin-top: 25px;
+    justify-content: center; /* Căn giữa 2 nút trong card */
+}
+
 .logout {
     display: block;
-    width: 100%;
+    width: 200px;
     text-align: center;
     padding: 14px;
     margin-top: 25px;
@@ -113,7 +120,10 @@ body {
         <p><strong>Chuyên ngành:</strong> <?php echo $user['major']; ?></p>
         <p><strong>Giới thiệu:</strong> <?php echo $user['bio']; ?></p>
         <br>
-        <a href="logout.php" class="logout">Đăng xuất</a>
+        <div class="button-group">
+            <a href="logout.php" class="logout">Đăng xuất</a>
+            <a href="playfair.html" class="logout">Next</a>
+        </div>
     </div>
 </body>
 </html>

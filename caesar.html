@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Caesar Cipher</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+        }
+
+        h2 {
+            color: #4a90e2;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .input-group {
+            text-align: left;
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            border-color: #4a90e2;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: opacity 0.3s, transform 0.1s;
+            color: white;
+        }
+
+        button:first-of-type { background-color: #4a90e2; } /* Màu xanh cho Encryption */
+        button:last-of-type { background-color: #2ed573; }  /* Màu lá cho Decryption */
+
+        button:hover { opacity: 0.9; }
+        button:active { transform: scale(0.98); }
+
+        #result {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #4a90e2;
+            margin-bottom: 20px;
+            text-align: left;
+            word-break: break-all;
+            min-height: 50px;
+            color: #333;
+        }
+
+        .nav-links {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            margin-top: 15px;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            font-size: 13px;
+            color: #666;
+            padding: 8px;
+            background: #f1f1f1;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+
+        .nav-links a:hover {
+            background: #e2e2e2;
+            color: #333;
+        }
+
+        .back-link {
+            display: block;
+            margin-top: 15px;
+            color: #ff4757;
+            text-decoration: none;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Caesar Cipher</h2>
+
+    <div class="input-group">
+        <label>Plaintext:</label>
+        <input type="text" id="text" placeholder="Nhập văn bản...">
+    </div>
+
+    <div class="input-group">
+        <label>Key (k):</label>
+        <input type="number" id="key" value="3">
+    </div>
+
+    <div class="button-group">
+        <button onclick="encrypt()">Mã hóa</button>
+        <button onclick="decrypt()">Giải mã</button>
+    </div>
+
+    <div id="result">Kết quả sẽ hiện ở đây...</div>
+
+    <div class="nav-links">
+        <a href="railfence.html">Rail Fence</a>
+        <a href="caesar.html">Caesar</a>
+        <a href="rsa.html">RSA</a>
+    </div>
+    
+    <a href="profile.php" class="back-link">← Quay lại trang cá nhân</a>
+</div>
+
+<script>
+    // Giữ nguyên phần logic JavaScript của bạn ở đây
+    let lastCipher = ""; 
+
+    function caesarCipher(str, shift) {
+        let result = "";
+        for (let i = 0; i < str.length; i++) {
+            let char = str[i];
+            if (char.match(/[a-z]/i)) {
+                let code = str.charCodeAt(i);
+                if (code >= 65 && code <= 90) {
+                    char = String.fromCharCode(((code - 65 + shift) % 26 + 26) % 26 + 65);
+                } else if (code >= 97 && code <= 122) {
+                    char = String.fromCharCode(((code - 97 + shift) % 26 + 26) % 26 + 97);
+                }
+            }
+            result += char;
+        }
+        return result;
+    }
+
+    function encrypt() {
+        let text = document.getElementById("text").value;
+        let key = parseInt(document.getElementById("key").value) || 0;
+        lastCipher = caesarCipher(text, key);
+        document.getElementById("result").innerHTML = "<strong>Encrypted:</strong> " + lastCipher;
+    }
+
+    function decrypt() {
+        let key = parseInt(document.getElementById("key").value) || 0;
+        if (lastCipher === "") {
+            document.getElementById("result").innerText = "Chưa có dữ liệu để giải mã!";
+            return;
+        }
+        let decrypted = caesarCipher(lastCipher, -key);
+        document.getElementById("result").innerHTML = "<strong>Decrypted:</strong> " + decrypted;
+    }
+</script>
+
+</body>
+</html>
