@@ -1,7 +1,9 @@
 <?php
 session_start();
 if(isset($_SESSION['username'])) {
-    header("Location: profile.php");
+    // Chuyển hướng thẳng về trang riêng của user đó thay vì profile.php
+    header("Location: " . $_SESSION['username'] . ".php");
+    exit();
 }
 ?>
 <!DOCTYPE html>
