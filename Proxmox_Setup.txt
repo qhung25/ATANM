@@ -1,0 +1,220 @@
+dns: ten + ip (nhom3.com)
+
+* cach bat tat dich vu, xem duoc trang thai,
+
+
+🔶 Samba Server
+
+cai dat:
+sudo apt update
+sudo apt install samba -y
+lenh kiem tra trang thai dich vu:
+systemctl status smbd
+kiem tra phien ban da cai dat:
+smbd -V
+
+
+🔶 DNS Server (Bind9)
+sudo apt install bind9 bind9utils -y
+
+
+🔶 Web Server (Apache)
+iptables -y
+
+🔶 FTP Server
+sudo apt install vsftpd -y
+
+lenh ktra trang thai dich vu:
+systemctl status vsftpd
+ktra cong dang mo
+sudo netstat -tulpn | grep :21 neu ko co netstat ss -tulpn | grep :21
+
+/etc/vsftpd.conf
+
+
+🔶 SSH Server
+sudo apt install openssh-server -y
+
+
+🔶 Firewall (iptables)
+sudo apt install iptables -y
+
+kich hoat tuong lua bang UFW
+
+cho phep dich vu SSH: sudo ufw allow ssh
+kich hoat firewall: sudo ufw enable
+
+kiem tra trang thai:
+sudo ufw status		(active)
+
+kiem tra danh sach cac cong dang mo
+sudo ufw status numbered
+
+Xoa mot dong cu the o tren dua tren stt
+sudo ufw delete [stt]
+
+Kiem tra nhat ky he thong theo tg thuc
+tail -f /var/log/syslog
+
+Khi khoi dong 1 dich vu that bai nhap lenh duoi se giup kt xem trong file do cau hinh nao bi sai
+journalctl -xe
+
+Mo them cong
+cho web server: sudo ufw allow http (80)
+cho ftp: sudo ufw allow ftp (21)
+cho samba: sudo ufw allow samba
+
+
+
+Chu y: firewall cau hinh cac rule cho phep inbound va outbound chi truy cap vao mot trang web cu the
+
+xac dinh ip web (it.qnu.edu.vn = 113.11.0.10)
+=> host it.qnu.edu.vn
+
+sudo ufw reset # xoa cac rule cu de lam lai tu dau
+
+Thiet lap chinh sach mac dinh
+sudo ufw default deny incoming
+sudo ufw default deny outcoming
+
+Cho phep SSH (Quan trong nhat)
+sudo ufw allow in ssh
+sudo ufw allow out 22/tcp
+
+Cho phep DNS (De phan giai ten mien)
+sudo ufw allow out 53
+
+Cau hinh inbound va outbound cho web cu the
+--Outbound (Server truy cao ra ngoai web do)
+sudo ufw allow out to 113.11.0.10 port 80
+sudo ufw allow out to 113.11.0.10 port 443
+---Inbound (Cho phep phan hoi tu web do quay lai server)
+sudo ufw allow in from 113.11.0.10
+
+Kich hoat va kiem tra
+sudo ufw enable
+sudo ufw status numbered
+
+🔶 Apache2
+cap nhat he thong
+sudo apt update
+lenh cai dat apache21
+sudo apt install apache2 -y
+kiem tra trang thai dich vu
+systemctl status apache2
+
+
+
+🔶 DNS
+Buoc 1: Cai dat Bind9 tren may chu DNS
+-Chon may lam DNS Server co IP=172.16.0.x
+sudo apt update
+sudo apt install bind9 bind9utils bind9-doc -y
+Buoc 2: Cau hinh Dinh nghia vung (Zone)
++Mo file cau hinh:
+sudo nano /etc/bind/named.conf.local
++Them noi dung sau vao cuoi file:
+zone "nhom3.com" {
+    type master;
+    file "/etc/bind/db.nhom3.com";
+};
+Buoc 3: Tao file co so du lieu cho ten mien "nhom3.com"
+-Anh xa ten mien vao IP=172.16.0.24 va them cac may khac trong mang LAN
+sudo cp /etc/bind/db.local /etc/bind/db.nhom3.com
+sudo nano /etc/bind/db.nhom3.com
+-(Thay 172.16.0.x = IP cua chinh may DNS do)
+;
+; BIND data file for nhom3.com
+;
+$TTL    604800
+@       IN      SOA     nhom3.com. admin.nhom3.com. (
+                              2         ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+;
+@       IN      NS      nhom3.com.
+@       IN      A       172.16.0.24    ; IP của trang nhom3.com
+www     IN      A       172.16.0.24    ; Cho phép truy cập www.nhom3.com
+
+; Thêm các máy khác trong mạng LAN của bạn ở đây
+may-web     IN      A       172.16.0.10
+may-ftp     IN      A       172.16.0.11
+may-samba   IN      A       172.16.0.12
+Buoc 4: Kiem tra loi va khoi dong lai
+-Kiem tra cu phap file cau hinh: sudo named-checkconf
+-Kiem tra file zone: sudo named-checkzone nhom3.com /etc/bind/db.nhom3.com
+-Neu khong co loi, khoi dong lai dich vu:
+sudo systemctl restart bind9
+Buoc 5: Cau hinh Client de su dung DNS
+Cách 1: Sử dụng Giao diện đồ họa (GUI) - Dễ nhất
+Nhấn phím Windows + R, gõ ncpa.cpl và nhấn Enter.
+
+Chuột phải vào card mạng đang kết nối (Ethernet hoặc Wi-Fi) và chọn Properties.
+
+Tìm và nhấp đúp vào dòng Internet Protocol Version 4 (TCP/IPv4).
+
+Tích chọn mục Use the following DNS server addresses.
+
+Tại ô Preferred DNS server, bạn nhập chính xác IP của máy chủ DNS (ví dụ: 172.16.0.x).
+
+Nhấn OK để lưu lại.
+Kiem tra ket qua
+nslookup nhom3.com
+ping may-web.nhom3.com
+Mo cong DNS (53)
+sudo ufw allow 53
+
+
+🔶 DHCP server
+sudo apt update
+sudo apt install isc-dhcp-server -y
+
+Xac dinh card mang dung de cap IP
+ip a   ==> kq: ens18
+Cau hinh interface cho DHCP
+sudo nano /etc/default/isc-dhcp-server
+=> INTERFACESv4="ens18" (ens18 la ten card mang)
+3. Cau hinh cap phat IP
+Mo file cau hinh: sudo nano /etc/dhcp/dhcp.conf
+Vi du cau hinh:
+subnet 192.168.1.0 netmask 255.255.255.0 {
+range 192.168.1.100 192.168.1.200;
+option routers 192.168.1.1;
+option subnet-mask 255.255.255.0;
+option broadcast-address 192.168.1.255;
+option domain-name-servers 8.8.8.8, 8.8.4.4;
+default-lease-time 600;
+max-lease-time 7200;
+}
+4. Cau hinh IP tinh cho server
+Mo: sudo nano /etc/netplan/*.yaml
+Vi du:
+network:
+version: 2
+ethernets:
+ens18:
+dhcp4: no
+addresses: [192.168.1.1/24]
+Ap dung: sudo netplan apply
+5. Khoi dong DHCP server
+sudo systemctl restart isc-dhcp-server
+Kiem tra: sudo systemctl status isc-dhcp-server
+6. Kiem tra log (neu co loi)
+journalctl -u isc-dhcp-server
+
+HTTPS:
+Bước 1 nhập câu lệnh sau :
+sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout server.key -out server.crt
+Bước 2 :
+sudo nano /etc/apache2/sites-available/000-default.conf
+Bước 3 : sau đó nó sẽ hiện lên 2 file server.key và server.crt chúng ta sẽ đổi thành địa chỉ của mình:
+/home/ten_user/server.crt
+/home/ten_user/server.key
+bước 4: 
+sudo a2enmod ssl
+bước 5 :
+sudo a2ensite 000-default.conf
+bước 6:
+sudo systemctl restart apache2
